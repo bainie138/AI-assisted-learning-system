@@ -4,7 +4,7 @@ import os
 # 确保data目录存在
 os.makedirs('data', exist_ok=True)
 
-# 连接SQLite数据库（不存在则创建）
+# 连接SQLite数据库(不存在则创建)
 conn = sqlite3.connect('data/notes.db')
 cursor = conn.cursor()
 
@@ -28,5 +28,5 @@ cursor.execute('CREATE INDEX IF NOT EXISTS idx_notes_created_at ON notes(created
 conn.commit()
 conn.close()
 
-print("✅ SQLite数据库初始化完成！")
-print("📋 已创建notes表，包含字段：id, title, content, created_at, keywords, summary")
+print("✅ SQLite数据库初始化完成!")
+print("📋 已创建notes表,包含字段:id, title, content, created_at, keywords, summary")

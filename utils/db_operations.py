@@ -5,7 +5,7 @@ import hashlib
 # 确保data目录存在
 os.makedirs('data', exist_ok=True)
 
-# 启用 WAL 模式以支持更好的并发（需在连接后执行）
+# 启用 WAL 模式以支持更好的并发(需在连接后执行)
 _initialized = False
 
 def get_db_connection():
@@ -47,7 +47,7 @@ def init_tables():
         )
     ''')
 
-    # 创建标签表（多级目录，邻接表模型）
+    # 创建标签表
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS tags (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -60,7 +60,7 @@ def init_tables():
         )
     ''')
 
-    # 创建笔记-标签关联表（多对多）
+    # 创建笔记-标签关联表
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS note_tags (
             note_id INTEGER NOT NULL,
@@ -152,7 +152,7 @@ def get_all_notes(user_id):
     return notes
 
 def get_note_by_id(note_id, user_id):
-    """根据ID获取笔记（验证用户权限）"""
+    """根据ID获取笔记(验证用户权限)"""
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM notes WHERE id = ? AND user_id = ?', (note_id, user_id))
@@ -161,7 +161,7 @@ def get_note_by_id(note_id, user_id):
     return note
 
 def update_note(note_id, user_id, title=None, content=None, keywords=None, summary=None):
-    """更新笔记（验证用户权限）"""
+    """更新笔记(验证用户权限)"""
     conn = get_db_connection()
     cursor = conn.cursor()
     
@@ -200,7 +200,7 @@ def update_note(note_id, user_id, title=None, content=None, keywords=None, summa
     return True
 
 def delete_note(note_id, user_id):
-    """删除笔记（验证用户权限）"""
+    """删除笔记(验证用户权限)"""
     conn = get_db_connection()
     cursor = conn.cursor()
     
@@ -216,7 +216,7 @@ def delete_note(note_id, user_id):
     return True
 
 def search_notes(user_id, keyword):
-    """搜索笔记（支持标题和内容搜索）"""
+    """搜索笔记(支持标题和内容搜索)"""
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
@@ -228,18 +228,10 @@ def search_notes(user_id, keyword):
     conn.close()
     return notes
 
-# ========================
 # 标签管理函数
-# ========================
 
 def create_tag(user_id, name, parent_id=None):
-    """
-    创建新标签
-    :param user_id: 用户ID
-    :param name: 标签名称
-    :param parent_id: 父标签ID（None表示根标签）
-    :return: 新标签ID，重复则返回None
-    """
+    """创建新标签"""
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('PRAGMA foreign_keys = ON')
@@ -258,11 +250,7 @@ def create_tag(user_id, name, parent_id=None):
 
 
 def get_all_tags(user_id):
-    """
-    获取用户所有标签（平铺列表）
-    :param user_id: 用户ID
-    :return: 标签列表，按名称排序
-    """
+    """获取用户所有标签(平铺列表)"""
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
@@ -275,12 +263,7 @@ def get_all_tags(user_id):
 
 
 def get_tag_by_id(tag_id, user_id):
-    """
-    根据ID获取标签（验证用户所有权）
-    :param tag_id: 标签ID
-    :param user_id: 用户ID
-    :return: 标签行或None
-    """
+    """根据ID获取标签"""
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
@@ -293,12 +276,7 @@ def get_tag_by_id(tag_id, user_id):
 
 
 def get_child_tags(user_id, parent_id=None):
-    """
-    获取指定节点的直接子标签
-    :param user_id: 用户ID
-    :param parent_id: 父标签ID（None获取根标签）
-    :return: 子标签列表
-    """
+    """获取指定节点的直接子标签"""
     conn = get_db_connection()
     cursor = conn.cursor()
     if parent_id is None:
@@ -317,13 +295,7 @@ def get_child_tags(user_id, parent_id=None):
 
 
 def _get_all_descendant_ids(cursor, tag_id, user_id):
-    """
-    递归获取标签的所有后代ID（内部辅助函数，用于环路检测）
-    :param cursor: 数据库游标
-    :param tag_id: 标签ID
-    :param user_id: 用户ID
-    :return: 所有后代ID的集合
-    """
+    """递归获取标签的所有后代ID(内部辅助函数,用于环路检测)"""
     descendants = set()
     stack = [tag_id]
     while stack:
@@ -342,14 +314,7 @@ def _get_all_descendant_ids(cursor, tag_id, user_id):
 
 
 def update_tag(tag_id, user_id, name=None, parent_id=None):
-    """
-    更新标签（验证所有权，含环路检测）
-    :param tag_id: 标签ID
-    :param user_id: 用户ID
-    :param name: 新名称（None则不更新）
-    :param parent_id: 新父标签ID（None=移至根级别, -1=不更新）
-    :return: 成功返回True，失败返回False
-    """
+    """更新标签(验证所有权,含环路检测)"""
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('PRAGMA foreign_keys = ON')
@@ -363,7 +328,7 @@ def update_tag(tag_id, user_id, name=None, parent_id=None):
         conn.close()
         return False
 
-    # 环路检测：如果要更新parent_id，新父节点不能是标签自身或其子孙
+    # 环路检测:如果要更新parent_id,新父节点不能是标签自身或其子孙
     if parent_id is not None and parent_id != -1:
         if parent_id == tag_id:
             conn.close()
@@ -409,12 +374,7 @@ def update_tag(tag_id, user_id, name=None, parent_id=None):
 
 
 def delete_tag(tag_id, user_id):
-    """
-    删除标签（CASCADE自动删除子标签和note_tags关联）
-    :param tag_id: 标签ID
-    :param user_id: 用户ID
-    :return: 成功返回True，失败返回False
-    """
+    """删除标签(CASCADE自动删除子标签和note_tags关联)"""
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('PRAGMA foreign_keys = ON')
@@ -433,19 +393,10 @@ def delete_tag(tag_id, user_id):
     conn.close()
     return True
 
-
-# ========================
 # 笔记-标签关联函数
-# ========================
 
 def set_note_tags(note_id, user_id, tag_ids):
-    """
-    替换笔记的标签（事务内先删后插）
-    :param note_id: 笔记ID
-    :param user_id: 用户ID
-    :param tag_ids: 标签ID列表
-    :return: 成功返回True，笔记不存在或无权限返回False
-    """
+    """替换笔记的标签(事务内先删后插)"""
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('PRAGMA foreign_keys = ON')
@@ -459,7 +410,7 @@ def set_note_tags(note_id, user_id, tag_ids):
         conn.close()
         return False
 
-    # 事务内：删除旧关联 + 插入新关联
+    # 事务内:删除旧关联 + 插入新关联
     cursor.execute('DELETE FROM note_tags WHERE note_id = ?', (note_id,))
     for tag_id in tag_ids:
         # 只关联属于该用户的标签
@@ -478,12 +429,7 @@ def set_note_tags(note_id, user_id, tag_ids):
 
 
 def get_note_tags(note_id, user_id):
-    """
-    获取笔记的标签列表
-    :param note_id: 笔记ID
-    :param user_id: 用户ID（验证笔记所有权）
-    :return: 标签列表（tags表行）
-    """
+    """获取笔记的标签列表"""
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -508,13 +454,7 @@ def get_note_tags(note_id, user_id):
 
 
 def get_notes_by_tag(user_id, tag_id, include_children=True):
-    """
-    按标签筛选笔记
-    :param user_id: 用户ID
-    :param tag_id: 标签ID
-    :param include_children: 是否包含子标签的笔记
-    :return: 笔记列表
-    """
+    """按标签筛选笔记"""
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -547,5 +487,5 @@ def get_notes_by_tag(user_id, tag_id, include_children=True):
     return notes
 
 
-# 初始化表（模块加载时自动执行，确保表结构存在）
+# 初始化表(模块加载时自动执行,确保表结构存在)
 init_tables()  # pyright: ignore[reportUnusedCallResult]

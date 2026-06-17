@@ -28,7 +28,7 @@ from utils.ai_client import generate_keywords_and_summary
 # ========================
 
 def build_tag_tree(tags, parent_id=None):
-    """从平铺标签列表构建树形结构，返回指定父节点的子标签列表"""
+    """从平铺标签列表构建树形结构,返回指定父节点的子标签列表"""
     children = [t for t in tags if (
         t['parent_id'] == parent_id or
         (parent_id is None and t['parent_id'] is None)
@@ -38,10 +38,10 @@ def build_tag_tree(tags, parent_id=None):
 
 
 def get_tag_full_path(tag, all_tags):
-    """获取标签的完整路径（如 '编程/Python/机器学习'）"""
+    """获取标签的完整路径(如 '编程/Python/机器学习')"""
     path_parts = [tag['name']]
     current = tag
-    # 如果传入的是类似dict的对象且没有get方法（sqlite3.Row），需要适配
+    # 如果传入的是类似dict的对象且没有get方法(sqlite3.Row),需要适配
     while current['parent_id'] is not None:
         parent = next(
             (t for t in all_tags if t['id'] == current['parent_id']),
@@ -55,7 +55,7 @@ def get_tag_full_path(tag, all_tags):
 
 
 def get_tag_options(all_tags):
-    """返回 {tag_id: '完整路径'} 的字典，用于 multiselect"""
+    """返回 {tag_id: '完整路径'} 的字典,用于 multiselect"""
     options = {}
     for tag in all_tags:
         options[tag['id']] = get_tag_full_path(tag, all_tags)
@@ -63,7 +63,7 @@ def get_tag_options(all_tags):
 
 
 def render_tag_tree(tags, parent_id, indent_level, all_tags):
-    """递归渲染标签树（紧凑版）"""
+    """递归渲染标签树(紧凑版)"""
     children = build_tag_tree(tags, parent_id)
     for tag in children:
         tag_id = tag['id']
@@ -75,7 +75,7 @@ def render_tag_tree(tags, parent_id, indent_level, all_tags):
         # 箭头小图标
         arrow = '▾' if (expanded and has_children) else ('▸' if has_children else ' ')
 
-        # 每行：箭头(极小) + 标签名按钮 + 添加子标签按钮
+        # 每行:箭头(极小) + 标签名按钮 + 添加子标签按钮
         col1, col2, col3 = st.columns([0.5, 7, 0.8])
 
         with col1:
@@ -330,7 +330,7 @@ def show_register_page():
             else:
                 user_id = register_user(username, password)
                 if user_id:
-                    st.success("注册成功！请登录")
+                    st.success("注册成功!请登录")
                     st.session_state.page = 'login'
                     st.rerun()
                 else:
@@ -374,7 +374,7 @@ def show_main_page():
         st.divider()
 
         # ========================
-        # 搜索与筛选（紧凑布局）
+        # 搜索与筛选
         # ========================
         st.caption("🔍 搜索与筛选")
 
@@ -387,14 +387,14 @@ def show_main_page():
             key="search_input"
         )
 
-        # 日期筛选（与搜索框合并在一起）
+        # 日期筛选
         col1, col2 = st.columns(2)
         with col1:
             start_date = st.date_input("开始日期", value=st.session_state.start_date, key="start_date_input")
         with col2:
             end_date = st.date_input("结束日期", value=st.session_state.end_date, key="end_date_input")
 
-        # 应用/重置 按钮行
+        # 应用/重置
         col_btn1, col_btn2 = st.columns(2)
         with col_btn1:
             if st.button("应用", type="primary", use_container_width=True):
@@ -414,7 +414,7 @@ def show_main_page():
 
         st.divider()
 
-        # 新建笔记 + 标签目录 紧凑行
+        # 新建笔记 + 标签目录
         col_new, col_tag = st.columns([1, 1])
         with col_new:
             if st.button("＋ 新建笔记", use_container_width=True):
@@ -429,14 +429,14 @@ def show_main_page():
                 st.rerun()
 
         # ========================
-        # 标签目录（紧凑布局）
+        # 标签目录
         # ========================
         st.caption("🏷️ 标签目录")
 
         # 获取当前用户的所有标签
         all_tags = get_all_tags(st.session_state.user['id'])
 
-        # 标签筛选指示器（紧凑一行）
+        # 标签筛选指示器
         if st.session_state.tag_filter_id:
             active_tag = next(
                 (t for t in all_tags if t['id'] == st.session_state.tag_filter_id),
@@ -469,7 +469,7 @@ def show_main_page():
         else:
             st.caption("  — 暂无标签")
 
-        # 标签管理面板（紧凑版）
+        # 标签管理面板
         if st.session_state.tag_management_open:
             st.markdown('<div class="tag-management-panel">', unsafe_allow_html=True)
 
@@ -525,7 +525,7 @@ def show_main_page():
                             st.session_state.tag_editor_parent_id = None
                             st.rerun()
 
-            # --- 编辑标签 ---
+            #编辑标签
             if all_tags:
                 st.caption("编辑 / 删除标签")
                 tag_options = get_tag_options(all_tags)
@@ -575,7 +575,7 @@ def show_main_page():
                                       parent_id=new_parent):
                             changed = True
                         else:
-                            st.error("移动失败（可能造成环路）")
+                            st.error("移动失败(可能造成环路)")
                     if changed:
                         st.success("已保存")
                         st.rerun()
@@ -586,7 +586,7 @@ def show_main_page():
 
         st.divider()
 
-        # 当前筛选条件（紧凑）
+        # 当前筛选条件
         if st.session_state.search_query or st.session_state.start_date or st.session_state.end_date:
             st.caption("📊 当前筛选")
             if st.session_state.search_query:
@@ -627,7 +627,7 @@ def show_main_page():
                 if datetime.strptime(note['created_at'], '%Y-%m-%d %H:%M:%S').date() <= st.session_state.end_date
             ]
 
-        # 标签筛选（额外过滤层）
+        # 标签筛选(额外过滤层)
         if st.session_state.tag_filter_id:
             tag_notes = get_notes_by_tag(
                 st.session_state.user['id'],
@@ -643,11 +643,11 @@ def show_main_page():
         else:
             st.caption("没有匹配的笔记")
 
-        # 显示笔记列表（带卡片样式）
+        # 显示笔记列表
         for note in filtered_notes:
             note_date = datetime.strptime(note['created_at'], '%Y-%m-%d %H:%M:%S').strftime('%m-%d %H:%M')
 
-            # 获取笔记的标签（显示完整路径）
+            # 获取笔记的标签
             note_tags = get_note_tags(note['id'], st.session_state.user['id'])
             tag_chips_html = ''
             if note_tags:
@@ -693,7 +693,7 @@ def show_main_page():
                 edit_title = st.text_input("标题", value=st.session_state.edit_title, key="edit_title_input")
                 edit_content = st.text_area("内容", value=st.session_state.edit_content, height=300, key="edit_content_input")
 
-                # 标签选择（编辑模式）
+                # 标签选择(编辑模式)
                 st.markdown("**🏷️ 标签**")
                 all_tags_for_edit = get_all_tags(st.session_state.user['id'])
                 if all_tags_for_edit:
@@ -736,14 +736,14 @@ def show_main_page():
                                     st.session_state.user['id'],
                                     selected_edit_tags
                                 )
-                            st.success("✅ 修改保存成功！")
+                            st.success("✅ 修改保存成功!")
                             # 退出编辑模式并刷新
                             st.session_state.edit_mode = False
                             st.session_state.edit_title = ""
                             st.session_state.edit_content = ""
                             st.session_state.refresh_key += 1
                         else:
-                            st.error("❌ 修改失败，权限不足")
+                            st.error("❌ 修改失败,权限不足")
                 with col2:
                     if st.button("❌ 取消编辑"):
                         st.session_state.edit_mode = False
@@ -755,7 +755,7 @@ def show_main_page():
             else:
                 # 查看模式
                 st.subheader(note['title'])
-                st.caption(f"创建时间：{note['created_at']}")
+                st.caption(f"创建时间:{note['created_at']}")
 
                 # 笔记内容
                 st.divider()
@@ -776,23 +776,23 @@ def show_main_page():
                         unsafe_allow_html=True
                     )
 
-                # 显示关键词和总结（如果已生成）
+                # 显示关键词和总结(如果已生成)
                 st.divider()
                 if note['keywords'] and note['summary']:
                     st.markdown("### 🎯 AI分析结果")
-                    st.markdown(f"<div style='margin-bottom:8px;'><strong>关键词：</strong>{note['keywords']}</div>", unsafe_allow_html=True)
-                    st.markdown('<div class="summary-card"><strong>总结：</strong>' + note['summary'] + '</div>', unsafe_allow_html=True)
+                    st.markdown(f"<div style='margin-bottom:8px;'><strong>关键词:</strong>{note['keywords']}</div>", unsafe_allow_html=True)
+                    st.markdown('<div class="summary-card"><strong>总结:</strong>' + note['summary'] + '</div>', unsafe_allow_html=True)
                 elif note['keywords']:
-                    st.markdown(f"**关键词：** {note['keywords']}")
+                    st.markdown(f"**关键词:** {note['keywords']}")
                 elif note['summary']:
-                    st.markdown(f"**总结：** {note['summary']}")
+                    st.markdown(f"**总结:** {note['summary']}")
 
                 # 学习资源推荐
                 st.divider()
                 st.subheader("📚 学习资源推荐")
 
                 if note['keywords']:
-                    # 解析关键词（假设用逗号分隔）
+                    # 解析关键词
                     keywords_list = [k.strip() for k in note['keywords'].split(',') if k.strip()]
 
                     # 限制为前3个关键词
@@ -801,7 +801,7 @@ def show_main_page():
                     for idx, keyword in enumerate(keywords_list, 1):
                         st.markdown(f"""
                         <div class="resource-card">
-                            <strong>关键词 {idx}：{keyword}</strong>
+                            <strong>关键词 {idx}:{keyword}</strong>
                             <div style="margin-top:12px;">
                                 <a href="https://baike.baidu.com/item/{keyword}" target="_blank" style="margin-right:16px;">📖 百度百科</a>
                                 <a href="https://www.jianshu.com/search?q={keyword}" target="_blank" style="margin-right:16px;">✍️ 简书搜索</a>
@@ -830,16 +830,16 @@ def show_main_page():
                                 )
 
                                 if success:
-                                    st.success("✅ AI分析完成！")
+                                    st.success("✅ AI分析完成!")
                                     st.session_state.refresh_key += 1
                                 else:
-                                    st.error("❌ 更新失败，权限不足")
+                                    st.error("❌ 更新失败,权限不足")
                             except Exception as e:
-                                st.error(f"⚠️ AI调用失败：{str(e)}")
+                                st.error(f"⚠️ AI调用失败:{str(e)}")
                             finally:
                                 st.session_state.ai_processing = False
 
-            # 操作按钮（始终显示）
+            # 操作按钮(始终显示)
             st.divider()
             col1, col2, col3 = st.columns(3)
             with col1:
@@ -859,7 +859,7 @@ def show_main_page():
                             st.session_state.edit_mode = False
                             st.session_state.refresh_key += 1
                         else:
-                            st.error("❌ 删除失败，权限不足")
+                            st.error("❌ 删除失败,权限不足")
             with col3:
                 if st.button("🔄 刷新", key=f"refresh_btn_{st.session_state.selected_note}"):
                     st.session_state.edit_mode = False
@@ -884,7 +884,7 @@ def show_main_page():
         if all_tags_for_form:
             tag_options = get_tag_options(all_tags_for_form)
             selected_tags = st.multiselect(
-                "选择标签（可选）",
+                "选择标签(可选)",
                 options=list(tag_options.keys()),
                 format_func=lambda tid: tag_options[tid],
                 key="new_note_tag_select",
@@ -892,17 +892,17 @@ def show_main_page():
             )
         else:
             selected_tags = []
-            st.caption("暂无标签，可在侧边栏 ⚙️ 管理标签中创建")
+            st.caption("暂无标签,可在侧边栏 ⚙️ 管理标签中创建")
 
         # 保存按钮
         can_save = bool(title and content)
         if st.button("💾 保存笔记", type="primary", disabled=not can_save):
-            # 保存笔记（不自动调用AI）
+            # 保存笔记(不自动调用AI)
             note_id = create_note(st.session_state.user['id'], title, content, keywords=None, summary=None)
             # 保存标签关联
             if selected_tags and note_id:
                 set_note_tags(note_id, st.session_state.user['id'], selected_tags)
-            st.success("🎉 笔记保存成功！")
+            st.success("🎉 笔记保存成功!")
 
             # 清空表单并刷新
             st.session_state.search_query = ""
@@ -912,7 +912,7 @@ def show_main_page():
 
     # 页脚
     st.divider()
-    st.caption("💡 提示：使用侧边栏的搜索和筛选功能快速找到笔记，点击笔记下方的AI按钮生成关键词和总结")
+    st.caption("💡 提示:使用侧边栏的搜索和筛选功能快速找到笔记,点击笔记下方的AI按钮生成关键词和总结")
 
 # 主入口
 if st.session_state.page == 'login':
